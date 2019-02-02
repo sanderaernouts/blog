@@ -58,6 +58,7 @@ feed:
 # ...
 include:
  - _redirects
+ - google80e5eb51a8a00643.html
 
 exclude:
   - assets/css
