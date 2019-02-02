@@ -1,0 +1,3 @@
+#redirects for posts from previous Wyam based GitHub pages blog:
+/posts/*    /:splat         301
+/tags/*     /tag/:splat     301

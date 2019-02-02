@@ -56,6 +56,8 @@ feed:
 # Post's page cover as a per-post basis _posts/...
 # Disqus comments as a per-post basis
 # ...
+include:
+ - _redirects
 
 exclude:
   - assets/css
