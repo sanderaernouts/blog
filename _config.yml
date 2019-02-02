@@ -7,6 +7,7 @@ words_per_minute: 200
 
 # edit baseurl to simply '/' if using as your personal page (instead of a project page)
 baseurl: /
+url: https://blog.sanderaernouts.com
 
 # Website info
 title: Sander Aernouts
@@ -44,7 +45,10 @@ permalink: :title
 
 # gems and other configs
 plugins_dir: [_plugins]
-plugins: [jekyll-paginate, jekyll-feed]
+plugins: 
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-sitemap
 
 feed:
   path: feed.xml
@@ -78,3 +82,9 @@ exclude:
   - changelog.md
   - "*.Rmd"
   - .git*
+
+defaults:
+- scope:
+    path: "google80e5eb51a8a00643.html"
+  values:
+    sitemap: false
