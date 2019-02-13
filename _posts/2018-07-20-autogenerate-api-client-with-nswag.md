@@ -28,13 +28,15 @@ In this blogpost I will show you how to configure [Swagger][1] an [NSwag][3] so 
 ## Configure Swagger and SwaggerUI with NSwag
 
 First add the `NSwag.AspNetCore` NuGet package to your API project:
+
 ```XML
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <AssemblyName>Example.Api</AssemblyName>
     <RootNamespace>Example.Api</RootNamespace>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,7 +45,7 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="NSwag.AspNetCore" Version="11.17.21" />
+    <PackageReference Include="NSwag.AspNetCore" Version="12.0.13" />
   </ItemGroup>
 
 </Project>
@@ -52,12 +54,13 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
 Next add the following code to your `Startup.cs`:
 
 ```csharp
-// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+// This method gets called by the runtime. Use this method to add services to the container.
+public void ConfigureServices(IServiceCollection services)
 {
-    // .....
-    // Enable the Swagger UI middleware and the Swagger generator
-    app.UseSwaggerUi3WithApiExplorer(settings =>
+  // .....
+    services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+    services.AddSwaggerDocument(settings =>
     {
         settings.PostProcess = document =>
         {
@@ -65,14 +68,24 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
             document.Info.Title = "Example API";
             document.Info.Description = "REST API for example.";
         };
-        settings.GeneratorSettings.DefaultPropertyNameHandling =
-            PropertyNameHandling.CamelCase;
     });
     //.....
+}
+
+// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+    // .....
+    // Enable the Swagger UI middleware and the Swagger generator
+    app.UseSwagger();
+    app.UseSwaggerUi3();
+    // .....
 }
 ```
 
 This is enough for a basic [Swagger][1] configuration, if you run your aspnetcore API project and navigate to `http://<host>:<port>/swagger` you will see [SwaggerUI][2]. This will also expose a `swagger.json` document at `http://<host>:<port>/swagger/v1/swagger.json` describing your API.
+
+For more eloborate examples or explanation on how to configure [NSwag][3] have a look at the documentation for [configuring the aspnetcore middleware][7].
 
 ## Generate API clients with NSwag
 
@@ -97,13 +110,13 @@ Your project file has to look something like this:
   </PropertyGroup>
 <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="NSwag.MSBuild" Version="11.17.21">
+    <PackageReference Include="NSwag.MSBuild" Version="12.0.13">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   
   <Target Name="NSwag" BeforeTargets="PrepareForBuild" Condition="'$(GenerateCode)'=='True' ">
-    <Exec Command="$(NSwagExe_Core21) run nswag.json /variables:Configuration=$(Configuration)" />
+    <Exec Command="$(NSwagExe_Core22) run nswag.json /variables:Configuration=$(Configuration)" />
   </Target>
 </Project>
 ```
@@ -116,7 +129,7 @@ Below are the most important properties for this example (get the full `nswag.js
 
 ```json
 {
-    "runtime": "NetCore21",
+    "runtime": "NetCore22",
     "defaultVariables": null,
     "swaggerGenerator": {
         "aspNetCoreToSwagger": {
@@ -171,7 +184,7 @@ internal abstract class ClientBase
 
 I chose for a `Func<..>` in my base class to retrieve the `Bearer` token. This `Func<..>` is invoked each time a message is created, this way the code that uses your client can contain logic to retrieve a new token when the  current one is expired.
 
-Also I made my client implementations `internal` and expose `public` interfaces. For this to work you will have to add a `public` factory or some other `public` mechanism to create instances of your clients. Here is an example of my factory:
+Also I made my client implementations `internal` and expose a `public` interfaces. For this to work you will have to add a `public` factory or some other `public` mechanism to create instances of your clients. Here is an example of my factory:
 
 ```csharp
 public static class ClientFactory
@@ -196,9 +209,14 @@ A fully [working example][5] is available on GitHub. If you encounter issues wit
 
 Cover photo by <a style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px" href="https://unsplash.com/@modestasu?utm_medium=referral&amp;utm_campaign=photographer-credit&amp;utm_content=creditBadge" target="_blank" rel="noopener noreferrer" title="Download free do whatever you want high-resolution photos from Modestas Urbonas"><span style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg" style="height:12px;width:auto;position:relative;vertical-align:middle;top:-1px;fill:white" viewBox="0 0 32 32"><title>unsplash-logo</title><path d="M20.8 18.1c0 2.7-2.2 4.8-4.8 4.8s-4.8-2.1-4.8-4.8c0-2.7 2.2-4.8 4.8-4.8 2.7.1 4.8 2.2 4.8 4.8zm11.2-7.4v14.9c0 2.3-1.9 4.3-4.3 4.3h-23.4c-2.4 0-4.3-1.9-4.3-4.3v-15c0-2.3 1.9-4.3 4.3-4.3h3.7l.8-2.3c.4-1.1 1.7-2 2.9-2h8.6c1.2 0 2.5.9 2.9 2l.8 2.4h3.7c2.4 0 4.3 1.9 4.3 4.3zm-8.6 7.5c0-4.1-3.3-7.5-7.5-7.5-4.1 0-7.5 3.4-7.5 7.5s3.3 7.5 7.5 7.5c4.2-.1 7.5-3.4 7.5-7.5z"></path></svg></span><span style="display:inline-block;padding:2px 3px">Modestas Urbonas</span></a>
 
+## Updates
+
+- 02/13/2019: updated examples to aspnetcore 2.2 and NSwag 12.
+
 [1]: https://swagger.io/
 [2]: https://swagger.io/tools/swagger-ui/
 [3]: https://github.com/RSuter/NSwag
 [4]: https://github.com/RSuter/NSwag/wiki/NSwagStudio
-[5]:https://github.com/sanderaernouts/autogenerate-api-client-with-nswag
-[6]:https://github.com/RSuter/NSwag/wiki
+[5]: https://github.com/sanderaernouts/autogenerate-api-client-with-nswag
+[6]: https://github.com/RSuter/NSwag/wiki
+[7]: https://github.com/RSuter/NSwag/wiki/AspNetCore-Middleware
