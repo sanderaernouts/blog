@@ -61,7 +61,7 @@ However with the new CSPROJ format you do not have an `AssemblyInfo.cs` file any
 ```xml
 <PropertyGroup>
    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-</PropertyGroup> 
+</PropertyGroup>
 ```
 
 That works but it means you will have to add all of the assembly attributes there. A far nicer solution in my opinion is adding the following to your project file instead:

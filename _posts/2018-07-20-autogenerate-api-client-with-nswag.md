@@ -13,7 +13,7 @@ class: post-template
 subclass: 'post'
 excerpt: How to automatically generate API clients on build for your aspnet core API using NSwag and Swagger.
 ---
-# TL;DR;
+# TL;DR
 
 Want to know how you can generate and compile up to date API clients each time you build your solution? Take a look at [this example][5] on GitHub.
 
