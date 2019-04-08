@@ -1,0 +1,8 @@
+.site-nav {
+    border-radius: 5px;
+    background-color: black;
+    opacity: 0.6;
+}
+.site-nav-left {
+    margin-left: 10px;
+}
