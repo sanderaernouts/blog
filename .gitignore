@@ -1,8 +1,6 @@
-# OS X
-.DS_Store
-
-# Jekyll build
-/_site/
+vendor/
+_site/
+.sass-cache/
 .jekyll-metadata
 #Gemfile.lock
 
