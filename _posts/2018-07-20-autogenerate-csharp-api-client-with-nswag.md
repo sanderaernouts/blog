@@ -1,7 +1,7 @@
 ---
 layout: post
 current: post
-cover: assets/images/covers/autogenerate-api-client-with-nswag-splash.jpg
+cover: assets/images/covers/autogenerate-csharp-api-client-with-nswag-splash.jpg
 navigation: True
 title: Automatically generating API clients on build with NSwag
 date: 2018-07-20 20:00
