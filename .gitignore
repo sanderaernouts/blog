@@ -10,6 +10,9 @@ _site/
 # others
 *.swp
 package-lock.json
+node_modules/
+.DS_Store
+.jekyll-cache/
 
 # site build
 *.gem
