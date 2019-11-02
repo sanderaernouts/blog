@@ -10,7 +10,7 @@ baseurl: /
 url: https://blog.sanderaernouts.com
 
 # Website info
-title: Sander Aernouts
+title: Sander Aernouts' blog
 description: Coding, Azure DevOps and more
 cover: assets/images/blog-cover.jpg
 #logo: assets/images/blog-icon.png
@@ -25,8 +25,18 @@ navigation: True # show the navbar links
 subscribers: False # you need to connect an external service for this to work,
 # if 'True' the submit button is disabled for now, but you can change that
 # by editing `_includes/subscribe-form.html`
-facebook: False
-twitter: sanderaernouts # replace by your username
+#facebook: False
+twitter: sanderaernouts
+social:
+  name: Sander Aernouts
+  links:
+    - https://twitter.com/sanderaernouts
+    - https://www.linkedin.com/in/sanderaernouts
+    - https://github.com/sanderaernouts
+    - https://xpirit.com/xpiriter/sander-aernouts/
+
+author:
+  twitter: sanderaernouts
 
 # Disqus
 disqus: True
@@ -49,6 +59,8 @@ plugins:
   - jekyll-paginate
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-last-modified-at
 
 feed:
   path: feed.xml
