@@ -33,10 +33,9 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>Example.Api</AssemblyName>
     <RootNamespace>Example.Api</RootNamespace>
-    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,8 +43,8 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="NSwag.AspNetCore" Version="12.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.1.3" />
   </ItemGroup>
 
 </Project>
@@ -58,7 +57,9 @@ Next add the following code to your `Startup.cs`:
 public void ConfigureServices(IServiceCollection services)
 {
   // .....
-    services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+    services
+      .AddControllers()
+      .AddNewtonsoftJson();
 
     services.AddSwaggerDocument(settings =>
     {
@@ -77,7 +78,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
     // .....
     // Enable the Swagger UI middleware and the Swagger generator
-    app.UseSwagger();
+    app.UseOpenApi();
     app.UseSwaggerUi3();
     // .....
 }
@@ -103,20 +104,20 @@ Your project file has to look something like this:
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Example.Api.Client</AssemblyName>
     <RootNamespace>Example.Api.Client</RootNamespace>
     <GenerateCode>True</GenerateCode>
   </PropertyGroup>
-<ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="NSwag.MSBuild" Version="12.0.13">
+    <PackageReference Include="NSwag.MSBuild" Version="13.1.3">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  
+
   <Target Name="NSwag" BeforeTargets="PrepareForBuild" Condition="'$(GenerateCode)'=='True' ">
-    <Exec Command="$(NSwagExe_Core22) run nswag.json /variables:Configuration=$(Configuration)" />
+    <Exec Command="$(NSwagExe_Core30) run nswag.json /variables:Configuration=$(Configuration)" />
   </Target>
 </Project>
 ```
@@ -129,33 +130,36 @@ Below are the most important properties for this example (get the full `nswag.js
 
 ```json
 {
-    "runtime": "NetCore22",
-    "defaultVariables": null,
-    "swaggerGenerator": {
-        "aspNetCoreToSwagger": {
-            "project": "../Api/Api.csproj", //path to your aspnetcore 2.1 project
-            //...
-        }
-    },
-    "codeGenerators": {
-        "swaggerToCSharpClient": {
-            "clientBaseClass": "ClientBase", //name of your client base class
-            "configurationClass": null,
-            "generateClientClasses": true,
-            "generateClientInterfaces": true,
-            ...
-            "useHttpRequestMessageCreationMethod": true, //allows you to add headers to each message
-            "clientClassAccessModifier": "internal", //make client generated client implementations internal
-            "typeAccessModifier": "public", //make your models and client interfaces public
-            "generateContractsOutput": true, //generate contacts in a separte file
-            "contractsNamespace": "Example.Api.Client.Contracts", //contracts namespace
-            "contractsOutputFilePath": "Contracts.g.cs",
-            ...
-            "namespace": "Example.Api.Client", //clients namespace
-            ...
-            "output": "Client.g.cs"
-        }
+  "runtime": "NetCore30",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "aspNetCoreToOpenApi": {
+      "project": "../Api/Api.csproj",
+      ...
+      "targetFramework": "netcoreapp3.0",
+      ...
     }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "clientBaseClass": "ClientBase", //name of your client base class
+      "configurationClass": null,
+      "generateClientClasses": true,
+      "generateClientInterfaces": true,
+      ...
+      "useHttpClientCreationMethod": false,
+      ...
+      "clientClassAccessModifier": "internal", //make client generated client implementations internal
+      "typeAccessModifier": "public", //make your models and client interfaces public
+      "generateContractsOutput": true, //generate contacts in a separte file
+      "contractsNamespace": "Example.Api.Client.Contracts", //contracts namespace 
+      "contractsOutputFilePath": "Contracts.g.cs",
+      ...
+      "namespace": "Example.Api.Client", //clients namespace
+      ...
+      "output": "Client.g.cs"
+    }
+  }
 }
 ```
 
@@ -211,7 +215,8 @@ Cover photo by <a style="background-color:black;color:white;text-decoration:none
 
 ## Updates
 
-- 02/13/2019: updated examples to aspnetcore 2.2 and NSwag 12.
+- 02/11/2019: updated examples to aspnetcore 3.0 and NSwag 13.
+- 13/02/2019: updated examples to aspnetcore 2.2 and NSwag 12.
 
 [1]: https://swagger.io/
 [2]: https://swagger.io/tools/swagger-ui/
