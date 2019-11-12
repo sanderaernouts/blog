@@ -3,7 +3,7 @@ layout: post
 current: post
 cover: assets/images/covers/autogenerate-csharp-api-client-with-nswag-splash.jpg
 navigation: True
-title: Automatically generating API clients on build with NSwag
+title: Automatically generating C# API clients on build with NSwag
 date: 2018-07-20 20:00
 author: sander
 tags:
@@ -11,11 +11,13 @@ tags:
   - aspnetcore
 class: post-template
 subclass: 'post'
-excerpt: How to automatically generate API clients on build for your aspnet core API using NSwag and Swagger.
+excerpt: How to automatically generate C# API clients on build for your aspnet core API using NSwag and Swagger.
 ---
 # TL;DR
 
-Want to know how you can generate and compile up to date API clients each time you build your solution? Take a look at [this example][5] on GitHub.
+Want to know how you can generate and compile up to date C# API clients each time you build your solution? Take a look at [this example][5] on GitHub.
+
+Want to generate a Typescript client, check out this [post](./autogenerate-typescript-api-client-with-nswag)
 
 ## Background
 
@@ -105,8 +107,8 @@ Your project file has to look something like this:
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>Example.Api.Client</AssemblyName>
-    <RootNamespace>Example.Api.Client</RootNamespace>
+    <AssemblyName>Example.Api.Client.CSharp</AssemblyName>
+    <RootNamespace>Example.Api.Client.CSharp</RootNamespace>
     <GenerateCode>True</GenerateCode>
   </PropertyGroup>
   <ItemGroup>
@@ -163,7 +165,7 @@ Below are the most important properties for this example (get the full `nswag.js
 }
 ```
 
-The most important part is the `useHttpRequestMessageCreationMethod` and `clientBaseClass`, this allows you to define a base class in your `Client` project that will create the `HttpMessage` that your clients will send. This allows you to for example add an `Authorization` header with a `Bearer` token. The client base class below does just that:
+The most important part is the `useHttpRequestMessageCreationMethod` and `clientBaseClass`, this allows you to define a base class in your `Client.CSharp` project that will create the `HttpMessage` that your clients will send. This allows you to for example add an `Authorization` header with a `Bearer` token. The client base class below does just that:
 
 ```csharp
 internal abstract class ClientBase
@@ -203,7 +205,7 @@ public static class ClientFactory
   }
 ```
 
-Now build the `Client` project to generate the clients and contracts. All that is left to do is to package your `Client` project as a NuGet package and share it with the users of your API. Having the `Client` project in the same solution as your aspnetcore API allows you to automatically build and publish up to date clients for your API.
+Now build the `Client.CSharp` project to generate the clients and contracts. All that is left to do is to package your `Client.CSharp` project as a NuGet package and share it with the users of your API. Having the `Client.CSharp` project in the same solution as your aspnetcore API allows you to automatically build and publish up to date clients for your API.
 
 A fully [working example][5] is available on GitHub. If you encounter issues with this example create an issue on that repository or leave a comment here.
 
