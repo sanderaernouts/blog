@@ -4,7 +4,7 @@ current: post
 cover: assets/images/covers/autogenerate-typescript-api-client-with-nswag-splash.jpg
 navigation: True
 title: Automatically generating Typescript API clients on build with NSwag
-date: 2019-11-12 20:00
+date: 2019-11-12 00:00
 author: sander
 tags:
   - coding
