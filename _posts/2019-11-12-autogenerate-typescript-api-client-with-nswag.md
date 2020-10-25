@@ -25,7 +25,7 @@ When you create an API using aspnetcore it is very easy to add a [Swagger][1] en
 
 With [NSwag][3] you can generate client code without having your API running, many generators require the `swagger.json` file that is exposed when you run your API but [NSwag][3] doesn't.
 
-In this blogpost I will show you how to configure [Swagger][1] an [NSwag][3] so that up to date API clients are generated and compiled each time you build your solution. These clients can be packaged and published through npm for easy access to your API's.
+In this blogpost I will show you how to configure [Swagger][1] an [NSwag][3] so that up to date API clients are generated and compiled each time you build your solution. These clients can be packaged and published through NuGet for easy access to your API's.
 
 ## Configure Swagger and SwaggerUI with NSwag
 
@@ -35,7 +35,7 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Example.Api</AssemblyName>
     <RootNamespace>Example.Api</RootNamespace>
   </PropertyGroup>
@@ -45,9 +45,12 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.1.3" />
-  </ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
+  <PackageReference Include="NSwag.AspNetCore" Version="13.8.2" />
+  <PackageReference Include="NSwag.MSBuild" Version="13.8.2">
+    <PrivateAssets>All</PrivateAssets>
+  </PackageReference>
+</ItemGroup>
 
 </Project>
 ```
@@ -88,43 +91,54 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 
 This is enough for a basic [Swagger][1] configuration, if you run your aspnetcore API project and navigate to `http://<host>:<port>/swagger` you will see [SwaggerUI][2]. This will also expose a `swagger.json` document at `http://<host>:<port>/swagger/v1/swagger.json` describing your API.
 
-For more eloborate examples or explanation on how to configure [NSwag][3] have a look at the documentation for [configuring the aspnetcore middleware][7].
+For more elaborate examples or explanation on how to configure [NSwag][3] have a look at the documentation for [configuring the aspnetcore middleware][7].
 
 ## Generate API clients with NSwag
 
-Next setup a seperate `Clients` project (or whatever you want to name it) and add the `NSwag.MSBuild` NuGet packages to it. We will use this package to generate the code for our API clients before the project is build, this way we can generate our code and compile it everytime you build your project.
+Next setup a separate `Clients` project (or whatever you want to name it) and add the `NSwag.MSBuild` NuGet packages to your API project. We will use this package to generate the code for our API clients after the project is build, this way we regenerate our client code every time you build your project.
 
-There are 3 things you need to add to your project file to config this:
+There are 2 things you need to add to your API project file to configure this:
 
-- an MSBuild property called `GenerateCode` inside a `PropertyGroup` with the value `True`
-- a `PackageReference` to `NSwag.MSBuild` insid a `ItemGroup`
-- a custom Target that runs **before** the `PrepareForBuild` target with a `Condition`. This target will invoke `nswag.exe` using an `nswag.json` config file to generate the required code.
+- a `PackageReference` to `NSwag.MSBuild` inside a `ItemGroup`
+- a custom Target that runs **after** the `Build` target with a `Condition`. This target will invoke `nswag.exe` using an `nswag.json` config file to generate the required code.
 
 Your project file has to look something like this:
 
 ```xml
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>Example.Api.Client.Typescript</AssemblyName>
-    <RootNamespace>Example.Api.Client.Typescript</RootNamespace>
-    <GenerateCode>True</GenerateCode>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>Example.Api</AssemblyName>
+    <RootNamespace>Example.Api</RootNamespace>
   </PropertyGroup>
+.....
+
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="NSwag.MSBuild" Version="13.1.3">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.8.2" />
+    <PackageReference Include="NSwag.MSBuild" Version="13.8.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
-  <Target Name="NSwag" BeforeTargets="PrepareForBuild" Condition="'$(GenerateCode)'=='True' ">
-    <Exec Command="$(NSwagExe_Core30) run nswag.json /variables:Configuration=$(Configuration)" />
-  </Target>
-</Project>
-```
+  <Target Name="NSwag" BeforeTargets="AfterBuild" Condition="'$(TF_BUILD)'!='True'">
+    <Exec 
+      ConsoleToMSBuild="true" 
+      ContinueOnError="true" 
+      Command="$(NSwagExe_Core31) run nswag.json /variables:...">
+      <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode"/>
+      <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput" />
+    </Exec>
 
-You can pass `/p:GenerateCode=False` to `dotnet.exe` when building to disable the code generation. I use this on the CI server so that the version of the code that is in source controll will be used instead of being regenerated.
+    <Message Text="$(NSwagOutput)" Condition="'$(NSwagExitCode)' == '0'" Importance="low"/>
+    <Error Text="$(NSwagOutput)" Condition="'$(NSwagExitCode)' != '0'"/>
+  </Target>
+  </Project>
+```
+*Note that the condition `Condition="'$(TF_BUILD)'!='True'"` is specific to Azure DevOps. This condition ensures that the client code not regenerated. I use this in my Azure DevOps builds so that the version of the code that is in source control is used instead of being regenerated. You can use any environment variable while running MSBuild. So if you are using a different CI system which sets a different environment variable you can use that instead. Else you can introduce your own MSBuild variable in the `PropertyGroup` and pass that to `dotnet.exe` using `/p:MyVar=False`*
+
+The `NSwag` target is configured to log the output of `nswag.exe` as MSBuild messages. If the exit code is anything but 0 and `Error` message will be logs. It took me a while to figure this out but this way you can see in your MSBuild output why `nswag.exe` is failing.
 
 The easiest way to create a `nswag.json` config file is by using [NSwagStudio][4] which you can install on Windows using an `MSI` you can find [here][4] or you can take the `nswag.json` file from my [example repository on github][5] and make modifications in that.
 
@@ -132,16 +146,10 @@ Below are the most important properties for this example (get the full `nswag.js
 
 ```json
 {
-  "runtime": "NetCore30",
-  "defaultVariables": null,
+  "runtime": "NetCore31",
   "documentGenerator": {
-    "aspNetCoreToOpenApi": {
-      "project": "../Api/Api.csproj",
-      ...
-      "targetFramework": "netcoreapp3.0",
-      ...
-    }
-  },
+    ...
+  }  
   "codeGenerators": {
     "openApiToTypeScriptClient": {
       ...
@@ -153,13 +161,13 @@ Below are the most important properties for this example (get the full `nswag.js
       "rxJsVersion": 6.0,
       "dateTimeType": "OffsetMomentJS", //use MomentJS for timestamps
       ...
-      "output": "api.generated.clients.ts"
+      "output": "$(TypescriptOutputPath)/api.generated.clients.ts"
     }
   }
 }
 ```
 
-When the clients are generated you still have add a way for them to authenticate. In Angular you can do this with an [HttpInterceptor](https://angular.io/api/common/http/HttpInterceptor):
+When the clients are generated you still have to add a way for them to authenticate. In Angular you can do this with an [HttpInterceptor](https://angular.io/api/common/http/HttpInterceptor):
 
 ```typescript
 ...
@@ -192,9 +200,17 @@ intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<an
 }
 ```
 
-Now build the `Client.Typescript` project to generate the clients and contracts. All that is left to do is to package your `Client.Typescript` project as an NPM package and share it with the users of your API. Having the `Client.Typescript` project in the same solution as your aspnetcore API allows you to automatically build and publish up to date clients for your API.
+Now build the `Api` project to generate the clients and contracts and the build your `Client` project. All that is left to do is to package your `Client` project as a NuGet package and share it with the users of your API. Having the `Client` project in the same solution as your aspnetcore API allows you to automatically build and publish up to date clients for your API. 
 
 A fully [working example][5] is available on GitHub. If you encounter issues with this example create an issue on that repository or leave a comment here.
+
+Want to generate a C# client, check out this [post](./autogenerate-csharp-api-client-with-nswag)
+
+*NOTE 1: There is no need to put the generated Typescript code into a `.csproj`. I merely did that here so that both the C# and Typescript examples look similar. If you, for example, serve an Angular app from your ASP.Net Core application you can can generate the Typescript client inside the angular project instead so that you have fully typed access to your API.* 
+
+*NOTE 2: I used to do this the other way around, meaning that the `Client` project contained the NSwag MSBuild target. This caused quite some build errors when concurrently building because the `Client` project had an implicit dependency on the `Api` project. So I decided to swap it around and make the `Api` project generate the code into the `Client` project instead.*
+
+Theoretically the generated code can get out of sync when the `Client` project builds before the `Api` project. But, to generated a changed client you will always have to modify the `Api` project first to add or modify some `Controller`. So as soon as you compile those changes the `Client` project will be updated. In short, this should never happen in practice. There is an MSBuild "trick" to ensure the correct build order without adding an assembly reference to the `Api` project but as said, you shouldn't need that. *
 
 ## Credits
 

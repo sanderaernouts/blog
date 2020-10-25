@@ -17,8 +17,8 @@
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}assets/built/syntax.css" />
     <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}assets/built/custom.css" />
     <!-- highlight.js -->
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
-    <style>.hljs { background: none; }</style>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.1/styles/default.min.css">
+
 
     <!--[if IE]>
         <style>
@@ -92,11 +92,17 @@
 
     <!-- highlight.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.10.0/components/prism-abap.min.js"></script>
-    <script>$(document).ready(function() {
-      $('pre code').each(function(i, block) {
-        hljs.highlightBlock(block);
-      });
-    });</script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.1/highlight.min.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', (event) => {
+        hljs.configure({
+            tabReplace: '  '
+        });
+        //hljs.initHighlighting();
+
+        document.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightBlock(block);
+        });
+      });</script>
 
     <!-- jQuery + Fitvids, which makes all video embeds responsive -->
     <script
