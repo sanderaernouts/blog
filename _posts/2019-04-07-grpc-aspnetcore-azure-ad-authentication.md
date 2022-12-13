@@ -1,8 +1,7 @@
 ---
-layout: post
-current: post
-cover: assets/images/covers/grpc-aspnetcore-azure-ad-authentication.jpg
-navigation: True
+header:
+  overlay_image: assets/images/covers/grpc-aspnetcore-azure-ad-authentication.jpg
+  teaser: assets/images/covers/grpc-aspnetcore-azure-ad-authentication.jpg
 title: Use Azure AD authentication with gRPC.
 date: 2019-04-08 00:00
 author: sander
@@ -10,8 +9,6 @@ tags:
   - coding
   - aspnetcore
   - grpc
-class: post-template
-subclass: 'post'
 excerpt: How to setup a gRPC service in ASP.NET core 3.0 using Azure AD for authentication.
 ---
 # TL;DR
