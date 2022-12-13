@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start jekyll (drafts, future)",
+            "command": "jekyll",
+            "args": [
+                "serve",
+                "--incremental",
+                "--watch",
+                "--force_polling",
+                "--livereload",
+                "--drafts",
+                "--future"
+            ],
+            "type": "shell",
+            "problemMatcher": []
+        },
+        {
+            "label": "Start jekyll",
+            "command": "jekyll",
+            "args": [
+                "serve",
+                "--watch",
+                "--force_polling",
+                "--livereload"
+            ],
+            "type": "shell",
+            "problemMatcher": []
+        }
+    ]
+}
