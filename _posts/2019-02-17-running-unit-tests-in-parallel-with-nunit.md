@@ -1,16 +1,13 @@
 ---
-layout: post
-current: post
-cover: assets/images/covers/running-unit-tests-in-parallel-with-nunit.jpg
-navigation: True
+header:
+  overlay_image: assets/images/covers/running-unit-tests-in-parallel-with-nunit.jpg
+  teaser: assets/images/covers/running-unit-tests-in-parallel-with-nunit.jpg
 title: Run your unit tests in parallel with NUnit
 date: 2019-02-16 12:00
 author: sander
 tags:
   - coding
   - unit testing
-class: post-template
-subclass: 'post'
 excerpt: How to safely run unit tests in parallel using NUnit. Examples in are specific for NUnit but, you can apply this pattern to any other test framework that supports parallel execution.
 ---
 # TL;DR

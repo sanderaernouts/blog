@@ -1,1 +1,0 @@
-{"version":3,"sources":["custom.css"],"names":[],"mappings":"AAAA,UACI,kBAAmB,AACnB,sBAAwB,AACxB,UAAa,CAChB,AACD,eACI,gBAAkB,CACrB","file":"custom.css","sourcesContent":[".site-nav {\r\n    border-radius: 5px;\r\n    background-color: black;\r\n    opacity: 0.6;\r\n}\r\n.site-nav-left {\r\n    margin-left: 10px;\r\n}"],"sourceRoot":"/source/"}

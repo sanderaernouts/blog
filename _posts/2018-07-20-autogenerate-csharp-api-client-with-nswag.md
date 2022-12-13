@@ -1,16 +1,13 @@
 ---
-layout: post
-current: post
-cover: assets/images/covers/autogenerate-csharp-api-client-with-nswag-splash.jpg
-navigation: True
+header:
+  overlay_image: assets/images/covers/autogenerate-csharp-api-client-with-nswag-splash.jpg
+  teaser: assets/images/covers/autogenerate-csharp-api-client-with-nswag-splash.jpg
 title: Automatically generating C# API clients on build with NSwag
 date: 2018-07-20 20:00
 author: sander
 tags:
   - coding
   - aspnetcore
-class: post-template
-subclass: 'post'
 excerpt: How to automatically generate C# API clients on build for your aspnet core API using NSwag and Swagger.
 ---
 # TL;DR

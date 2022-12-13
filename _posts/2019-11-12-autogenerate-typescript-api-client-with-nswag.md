@@ -1,16 +1,12 @@
 ---
-layout: post
-current: post
-cover: assets/images/covers/autogenerate-typescript-api-client-with-nswag-splash.jpg
-navigation: True
+header:
+  teaser: assets/images/covers/autogenerate-typescript-api-client-with-nswag-splash.jpg
 title: Automatically generating Typescript API clients on build with NSwag
 date: 2019-11-12 00:00
 author: sander
 tags:
   - coding
   - aspnetcore
-class: post-template
-subclass: 'post'
 excerpt: How to automatically generate Typescript API clients on build for your aspnet core API using NSwag and Swagger.
 ---
 # TL;DR

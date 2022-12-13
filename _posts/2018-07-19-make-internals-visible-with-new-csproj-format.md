@@ -1,15 +1,9 @@
 ---
-layout: post
-current: post
-cover: assets/images/covers/make-internals-visible-with-new-csproj-format-splash.jpg
-navigation: True
+header:
+  overlay_image: assets/images/covers/make-internals-visible-with-new-csproj-format-splash.jpg
+  teaser: assets/images/covers/make-internals-visible-with-new-csproj-format-splash.jpg
 title: How to make internal members visible to other assemblies with the new CSPROJ format
 date: 2018-07-19 20:00
-author: sander
-tags:
-  - coding
-class: post-template
-subclass: 'post'
 excerpt: How to add the InternalsVisibleTo attribute to your generated AssemblyInfo.cs when using the new CSPROJ 
 ---
 # TL;DR

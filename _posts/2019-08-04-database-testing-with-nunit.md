@@ -1,15 +1,13 @@
 ---
-layout: post
-current: post
-cover: assets/images/covers/database-testing-with-nunit.jpg
+header:
+  overlay_image: assets/images/covers/database-testing-with-nunit.jpg
+  teaser: assets/images/covers/database-testing-with-nunit.jpg
 title: Test your code against a SQL database (with NUnit)
 date: 2019-08-04 00:00
 author: sander
 tags:
   - coding
   - unit testing
-class: post-template
-subclass: 'post'
 excerpt: How to run test (in parallel) against an actual SQL database (with NUnit)
 ---
 # TL;DR
