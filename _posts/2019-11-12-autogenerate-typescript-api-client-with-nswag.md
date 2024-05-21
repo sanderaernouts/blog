@@ -35,7 +35,7 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Example.Api</AssemblyName>
     <RootNamespace>Example.Api</RootNamespace>
   </PropertyGroup>
@@ -46,8 +46,8 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
 
   <ItemGroup>
   <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
-  <PackageReference Include="NSwag.AspNetCore" Version="13.8.2" />
-  <PackageReference Include="NSwag.MSBuild" Version="13.8.2">
+  <PackageReference Include="NSwag.AspNetCore" Version="14.0.7" />
+  <PackageReference Include="NSwag.MSBuild" Version="14.0.7">
     <PrivateAssets>All</PrivateAssets>
   </PackageReference>
 </ItemGroup>
@@ -55,38 +55,29 @@ First add the `NSwag.AspNetCore` NuGet package to your API project:
 </Project>
 ```
 
-Next add the following code to your `Startup.cs`:
+Next add the following code to your `Program.cs`:
 
 ```csharp
-// This method gets called by the runtime. Use this method to add services to the container.
-public void ConfigureServices(IServiceCollection services)
+// .....
+builder.Services.AddControllers().AddNewtonsoftJson();
+                
+builder.Services.AddOpenApiDocument(settings =>
 {
-  // .....
-    services
-      .AddControllers()
-      .AddNewtonsoftJson();
-
-    services.AddSwaggerDocument(settings =>
+    settings.PostProcess = document =>
     {
-        settings.PostProcess = document =>
-        {
-            document.Info.Version = "v1";
-            document.Info.Title = "Example API";
-            document.Info.Description = "REST API for example.";
-        };
-    });
-    //.....
+        document.Info.Version = "v1";
+        document.Info.Title = "Example API";
+        document.Info.Description = "REST API for example.";
+    };
+});
+//.....
+
+if(!app.Environment.IsProduction()) {
+    app.UseOpenApi();
+    app.UseSwaggerUi();
 }
 
-// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-{
-    // .....
-    // Enable the Swagger UI middleware and the Swagger generator
-    app.UseOpenApi();
-    app.UseSwaggerUi3();
-    // .....
-}
+//......
 ```
 
 This is enough for a basic [Swagger][1] configuration, if you run your aspnetcore API project and navigate to `http://<host>:<port>/swagger` you will see [SwaggerUI][2]. This will also expose a `swagger.json` document at `http://<host>:<port>/swagger/v1/swagger.json` describing your API.
@@ -108,7 +99,7 @@ Your project file has to look something like this:
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Example.Api</AssemblyName>
     <RootNamespace>Example.Api</RootNamespace>
   </PropertyGroup>
@@ -126,7 +117,7 @@ Your project file has to look something like this:
     <Exec 
       ConsoleToMSBuild="true" 
       ContinueOnError="true" 
-      Command="$(NSwagExe_Core31) run nswag.json /variables:...">
+      Command="$(NSwagExe_Net80) run nswag.json /variables:...">
       <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode"/>
       <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput" />
     </Exec>
@@ -146,10 +137,14 @@ Below are the most important properties for this example (get the full `nswag.js
 
 ```json
 {
-  "runtime": "NetCore31",
+  "runtime": "Net80",
   "documentGenerator": {
-    ...
-  }  
+    "aspNetCoreToOpenApi": {
+      ...
+      "aspNetCoreEnvironment": "CodeGeneration",
+      ...
+    }
+  },  
   "codeGenerators": {
     "openApiToTypeScriptClient": {
       ...
@@ -166,6 +161,17 @@ Below are the most important properties for this example (get the full `nswag.js
   }
 }
 ```
+
+The `documentGenerator.aspNetCoreToOpenApi.aspNetCoreEnvironment` is especially important because ASP.net core uses `Production` as the default environment. If you something like this in your code:
+
+```csharp
+if(!app.Environment.IsProduction()) {
+    app.UseOpenApi();
+    app.UseSwaggerUi();
+}
+```
+
+Then the OpenAPI and Swagger endpoints are only available when the environment is set to something other than `Production`.
 
 When the clients are generated you still have to add a way for them to authenticate. In Angular you can do this with an [HttpInterceptor](https://angular.io/api/common/http/HttpInterceptor):
 
@@ -214,7 +220,13 @@ Theoretically the generated code can get out of sync when the `Client` project b
 
 ## Credits
 
+Thanks to my colleague [Erick Segaar](https://www.ericksegaar.com/) for providing the updated code for ASP.net core 8 and NSwag 14.
+
 Cover photo by <a style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px" href="https://unsplash.com/@darylgio?utm_medium=referral&amp;utm_campaign=photographer-credit&amp;utm_content=creditBadge" target="_blank" rel="noopener noreferrer" title="Download free do whatever you want high-resolution photos from darylgio agoncillo"><span style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg" style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white" viewBox="0 0 32 32"><title>unsplash-logo</title><path d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path></svg></span><span style="display:inline-block;padding:2px 3px">darylgio agoncillo</span></a>
+
+## Updates
+
+- 21/04/2024: upgraded to ASP.net core 8, NSwag 14, and added a note about the `aspNetCoreEnvironment` property in `nswag.json`.
 
 [1]: https://swagger.io/
 [2]: https://swagger.io/tools/swagger-ui/
